@@ -14,6 +14,7 @@ import * as notifications from '../controllers/notificationController';
 import * as ai from '../controllers/aiController';
 import * as dashboard from '../controllers/dashboardController';
 import * as users from '../controllers/userController';
+import * as chat from '../controllers/chatController';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.post('/auth/register', auth.register);
 router.post('/auth/login', auth.login);
 router.get('/auth/profile', authenticate, auth.getProfile);
 router.put('/auth/profile', authenticate, auth.updateProfile);
+router.put('/auth/change-password', authenticate, auth.changePassword);
 
 // ── Dashboard ──
 router.get('/dashboard/stats', authenticate, dashboard.getDashboardStats);
@@ -55,8 +57,10 @@ router.delete('/documents/:id', authenticate, authorize(UserRole.ADMIN, UserRole
 
 // ── Notifications ──
 router.get('/notifications', authenticate, notifications.getNotifications);
-router.put('/notifications/:id/read', authenticate, notifications.markAsRead);
 router.put('/notifications/read-all', authenticate, notifications.markAllAsRead);
+router.delete('/notifications/all', authenticate, notifications.deleteAllNotifications);
+router.put('/notifications/:id/read', authenticate, notifications.markAsRead);
+router.delete('/notifications/:id', authenticate, notifications.deleteNotification);
 
 // ── AI ──
 router.post('/ai/summary', authenticate, ai.generateSummary);
@@ -68,5 +72,11 @@ router.get('/users', authenticate, authorize(UserRole.ADMIN, UserRole.MANAGER), 
 router.get('/users/:id', authenticate, authorize(UserRole.ADMIN, UserRole.MANAGER), users.getUserById);
 router.put('/users/:id', authenticate, authorize(UserRole.ADMIN), users.updateUser);
 router.delete('/users/:id', authenticate, authorize(UserRole.ADMIN), users.deleteUser);
+
+// ── Chat ──
+router.get('/chat/contacts', authenticate, chat.getChatContacts);
+router.get('/chat/unread', authenticate, chat.getUnreadCount);
+router.get('/chat/history/:userId', authenticate, chat.getChatHistory);
+router.delete('/chat/messages', authenticate, chat.deleteMessages);
 
 export default router;

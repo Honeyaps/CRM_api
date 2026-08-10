@@ -41,3 +41,27 @@ export const markAllAsRead = async (req: AuthRequest, res: Response, next: NextF
     next(err);
   }
 };
+
+export const deleteNotification = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const notification = await Notification.findByPk(req.params.id);
+    if (!notification) throw new AppError('Notification not found', 404);
+
+    await notification.destroy();
+    res.json({ success: true, message: 'Notification deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteAllNotifications = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    await Notification.destroy({
+      where: { user_id: req.user!.id },
+    });
+
+    res.json({ success: true, message: 'All notifications deleted' });
+  } catch (err) {
+    next(err);
+  }
+};

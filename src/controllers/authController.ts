@@ -101,3 +101,33 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
     next(err);
   }
 };
+
+export const changePassword = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = await User.findByPk(req.user!.id);
+    if (!user) throw new AppError('User not found', 404);
+
+    const { current_password, new_password } = req.body;
+
+    if (!current_password || !new_password) {
+      throw new AppError('Current password and new password are required', 400);
+    }
+
+    if (new_password.length < 6) {
+      throw new AppError('New password must be at least 6 characters', 400);
+    }
+
+    const isMatch = await user.comparePassword(current_password);
+    if (!isMatch) throw new AppError('Current password is incorrect', 400);
+
+    user.password = new_password;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully',
+    });
+  } catch (err) {
+    next(err);
+  }
+};

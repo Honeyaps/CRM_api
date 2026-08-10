@@ -6,6 +6,7 @@ import Note from './Note';
 import Activity from './Activity';
 import Document from './Document';
 import Notification from './Notification';
+import Message from './Message';
 
 // ── Associations ──
 
@@ -38,4 +39,8 @@ Lead.hasMany(Document, { foreignKey: 'lead_id', as: 'documents' });
 Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 Notification.belongsTo(Lead, { foreignKey: 'lead_id', as: 'lead' });
 
-export { sequelize, User, Lead, Task, Note, Activity, Document, Notification };
+// Messages
+Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
+Message.belongsTo(User, { foreignKey: 'receiver_id', as: 'receiver' });
+
+export { sequelize, User, Lead, Task, Note, Activity, Document, Notification, Message };
