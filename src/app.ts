@@ -128,6 +128,39 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // ── Routes ──
 app.use('/api', routes);
+// ── Temporary Seed Route (remove after seeding) ──
+app.get('/seed', async (_req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const { User, Lead, Task, Note, Activity, Notification } = require('./models');
+    
+    // Check if already seeded
+    const existing = await User.findOne({ where: { email: 'admin@crm.com' } });
+    if (existing) {
+      return res.json({ message: 'Already seeded!' });
+    }
+
+    const hash = (pw: string) => bcrypt.hashSync(pw, 10);
+
+    const admin = await User.create({ name: 'Admin User', email: 'admin@crm.com', password: 'admin123', role: 'admin', phone: '+91-9876543210' });
+    const manager = await User.create({ name: 'Priya Sharma', email: 'priya@crm.com', password: 'manager123', role: 'manager', phone: '+91-9876543211' });
+    const sales1 = await User.create({ name: 'Honey Kumar', email: 'honey@crm.com', password: 'sales123', role: 'sales', phone: '+91-9876543212' });
+    const sales2 = await User.create({ name: 'Rahul Verma', email: 'rahul@crm.com', password: 'sales123', role: 'sales', phone: '+91-9876543213' });
+
+    res.json({ 
+      message: 'Seed successful!',
+      users: [
+        'admin@crm.com / admin123',
+        'priya@crm.com / manager123', 
+        'honey@crm.com / sales123',
+        'rahul@crm.com / sales123'
+      ]
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', online: onlineUsers.size, timestamp: new Date().toISOString() });
 });
