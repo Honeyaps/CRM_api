@@ -126,6 +126,31 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
+// ── Temporary Seed Route (REMOVE after seeding) ──
+app.get('/api/seed', async (_req, res) => {
+  try {
+    const { User, Lead, Task, Note, Activity, Notification } = require('./models');
+    const { UserRole, LeadStatus, LeadPriority, LeadSource, TaskStatus, TaskPriority, NotificationType } = require('./types');
+
+    const admin = await User.create({ name: 'Admin User', email: 'admin@crm.com', password: 'admin123', role: UserRole.ADMIN, phone: '+91-9876543210' });
+    const manager = await User.create({ name: 'Priya Sharma', email: 'priya@crm.com', password: 'manager123', role: UserRole.MANAGER, phone: '+91-9876543211' });
+    const sales1 = await User.create({ name: 'Honey Kumar', email: 'honey@crm.com', password: 'sales123', role: UserRole.SALES, phone: '+91-9876543212' });
+    const sales2 = await User.create({ name: 'Rahul Verma', email: 'rahul@crm.com', password: 'sales123', role: UserRole.SALES, phone: '+91-9876543213' });
+
+    await Lead.bulkCreate([
+      { name: 'John Smith', email: 'john@acme.com', phone: '+91-8001234567', company: 'Acme Pvt Ltd', requirement: 'Cloud IVR with Call Recording for 80 employees', status: LeadStatus.NEW, priority: LeadPriority.HIGH, source: LeadSource.WEBSITE, deal_value: 150000, assigned_to: sales1.id },
+      { name: 'Anita Desai', email: 'anita@globaltech.com', phone: '+91-8009876543', company: 'Global Tech Solutions', requirement: 'Bulk SMS and voice broadcasting for 500+ customers', status: LeadStatus.CONTACTED, priority: LeadPriority.URGENT, source: LeadSource.EMAIL, deal_value: 300000, assigned_to: sales1.id },
+      { name: 'Vikram Singh', email: 'vikram@startupx.io', phone: '+91-7001234567', company: 'StartupX', requirement: 'Affordable IVR for small team of 15', status: LeadStatus.MEETING_SCHEDULED, priority: LeadPriority.MEDIUM, source: LeadSource.WHATSAPP, deal_value: 50000, assigned_to: sales2.id },
+      { name: 'Meera Patel', email: 'meera@bigcorp.com', phone: '+91-6001234567', company: 'BigCorp Industries', requirement: 'Enterprise IVR with CRM integration', status: LeadStatus.PROPOSAL_SENT, priority: LeadPriority.HIGH, source: LeadSource.PHONE, deal_value: 500000, assigned_to: sales1.id },
+      { name: 'Arjun Reddy', email: 'arjun@nexgen.co', phone: '+91-5001234567', company: 'NexGen Services', requirement: 'OBD service for campaign - 2 lakh calls/day', status: LeadStatus.WON, priority: LeadPriority.URGENT, source: LeadSource.REFERRAL, deal_value: 800000, assigned_to: sales2.id },
+    ]);
+
+    res.json({ message: '✅ Seed complete' });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ── Routes ──
 app.use('/api', routes);
 app.get('/health', (_req, res) => {
