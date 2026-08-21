@@ -71,11 +71,11 @@ User.init(
     tableName: 'users',
     hooks: {
       beforeCreate: async (user: User) => {
-        user.password = await bcrypt.hash(user.password, 12);
+        user.password = await bcrypt.hash(user.password, 10);
       },
       beforeUpdate: async (user: User) => {
         if (user.changed('password')) {
-          user.password = await bcrypt.hash(user.password, 12);
+          user.password = await bcrypt.hash(user.password, 10);
         }
       },
     },
