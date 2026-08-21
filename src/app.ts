@@ -129,8 +129,18 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 // ── Temporary Seed Route (REMOVE after seeding) ──
 app.get('/api/seed', async (_req, res) => {
   try {
-    const { User, Lead, Task, Note, Activity, Notification } = require('./models');
-    const { UserRole, LeadStatus, LeadPriority, LeadSource, TaskStatus, TaskPriority, NotificationType } = require('./types');
+    const { User, Lead, Task, Note, Activity, Notification, Message } = require('./models');
+    const { UserRole, LeadStatus, LeadPriority, LeadSource } = require('./types');
+
+    // Clear existing data (order matters for foreign keys)
+    await Message.destroy({ where: {} });
+    await Notification.destroy({ where: {} });
+    await Activity.destroy({ where: {} });
+    await Note.destroy({ where: {} });
+    await Task.destroy({ where: {} });
+    await Lead.destroy({ where: {} });
+    await User.destroy({ where: {} });
+    console.log('🗑️ Old data cleared');
 
     const admin = await User.create({ name: 'Admin User', email: 'admin@crm.com', password: 'admin123', role: UserRole.ADMIN, phone: '+91-9876543210' });
     const manager = await User.create({ name: 'Priya Sharma', email: 'priya@crm.com', password: 'manager123', role: UserRole.MANAGER, phone: '+91-9876543211' });
@@ -145,8 +155,9 @@ app.get('/api/seed', async (_req, res) => {
       { name: 'Arjun Reddy', email: 'arjun@nexgen.co', phone: '+91-5001234567', company: 'NexGen Services', requirement: 'OBD service for campaign - 2 lakh calls/day', status: LeadStatus.WON, priority: LeadPriority.URGENT, source: LeadSource.REFERRAL, deal_value: 800000, assigned_to: sales2.id },
     ]);
 
-    res.json({ message: '✅ Seed complete' });
+    res.json({ message: '✅ Seed complete — 4 users, 5 leads created' });
   } catch (error: any) {
+    console.error('Seed error:', error);
     res.status(500).json({ error: error.message });
   }
 });
